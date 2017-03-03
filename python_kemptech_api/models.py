@@ -10,6 +10,7 @@ from python_kemptech_api.api_xml import (
     get_data_field,
     is_successful,
     get_data,
+    parse_to_dict,
     get_error_msg
 )
 from python_kemptech_api.capabilities import CAPABILITIES, DEFAULT
@@ -36,7 +37,9 @@ from python_kemptech_api.objects import (
     Range,
     CustomLocation,
     Interface,
-    IntermediateCertificate)
+    IntermediateCertificate,
+    License,
+    Subscription)
 from python_kemptech_api.utils import (
     send_response,
     validate_port,
@@ -149,12 +152,7 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
         curl.append(command)
         return curl
 
-    @property
-    def license(self):
-        """Current license on the LoadMaster
-
-        :return: License information
-        """
+    def _get_license(self, as_object=False):
         response = self._get("/licenseinfo")
 
         if is_successful(response):
@@ -174,7 +172,7 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
 
                     if v[-1] == "\n":
                         v = v[:-1]
-                except (IndexError, KeyError):
+                except (IndexError, KeyError, TypeError):
                     # Catch scenarios where there is no data
                     pass
 
@@ -185,7 +183,33 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
         else:
             raise KempTechApiException(get_error_msg(response))
 
-        return license_info
+        if as_object is True:
+            subscriptions = [
+                build_object(Subscription, self.access_info, item[1])
+                for item in license_info.items()
+                if item[0].startswith('subscriptionentry')
+            ]
+            lic_obj = build_object(License, self.access_info, license_info)
+            lic_obj.subscriptions = subscriptions
+            return lic_obj
+        else:
+            return license_info
+
+    @property
+    def license(self):
+        """Current license on the LoadMaster
+
+        :return: License information
+        """
+        return self._get_license()
+
+    @property
+    def license_as_object(self):
+        """Current license on the LoadMaster as an object
+
+        :return: License information
+        """
+        return self._get_license(as_object=True)
 
     @property
     def interfaces(self):
@@ -1394,11 +1418,36 @@ class LoadMaster(BaseKempAppliance):
         virt_serv.populate_default_attributes(service)
         return virt_serv
 
-    def get_all_objects(self):
+    def get_all_objects(self, with_timestamp=False):
+        """
+        Fetches all virtual services from a LoadMaster, with
+        nested sub virtual services and real servers.
+        Optionally returns the last-changed timestamp
+        of the LoadMaster's virtual service configuration.
+
+        :param with_timestamp: Determines whether or not the last-changed
+                                timestamp should be returned
+        :type with_timestamp: bool
+        :return: If ``with_timestamp`` is False,
+                    a list of virtual services objects
+                    If ``with_timestamp`` is True,
+                    a tuple consisting of a list of virtual services objects
+                    and the last-changed timestamp
+        :rtype: Union[list, tuple]
+        """
+        # pylint: disable=too-many-locals
         # x variables are the object while x_data is the OrderedDict
         virtual_services = []
-        response = self._get("/listvs")
-        data = get_data(response)
+        if with_timestamp:
+            response = self._get("/listvs",
+                                 parameters={"timestamp": 0})
+        else:
+            response = self._get("/listvs")
+        # build_virtual_service's response parameter
+        # must be a full response dict for regular VS
+        # and the Data portion of response dict for sub VS
+        parsed_resp = parse_to_dict(response)
+        data = get_data(parsed_resp)
         virtual_services_data = data.get('VS', [])
         virtual_services_data = cast_to_list(virtual_services_data)
 
@@ -1412,7 +1461,7 @@ class LoadMaster(BaseKempAppliance):
                         virt_serv = self.build_virtual_service(service_data,
                                                                vs)
             else:
-                virt_serv = self.build_virtual_service(service_data, response)
+                virt_serv = self.build_virtual_service(service_data, parsed_resp)
             real_servers = cast_to_list(service_data.get("Rs", []))
             for server_data in real_servers:
                 rs = virt_serv.build_real_server(server_data)
@@ -1424,8 +1473,11 @@ class LoadMaster(BaseKempAppliance):
                 for top_level_vs in virtual_services:
                     if subvs.index == top_level_vs.index:
                         subvs.real_servers = top_level_vs.real_servers
-
-        return virtual_services
+        if with_timestamp:
+            # Extract the last-changed timestamp if present
+            return virtual_services, int(data.get('timestamp', 0))
+        else:
+            return virtual_services
 
     def clone_virtual_service(self, service, ip=None, port=None, protocol=None,
                               enable=True,

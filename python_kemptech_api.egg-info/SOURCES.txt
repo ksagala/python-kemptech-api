@@ -14,6 +14,7 @@ python_kemptech_api/capabilities.py
 python_kemptech_api/client.py
 python_kemptech_api/exceptions.py
 python_kemptech_api/generic.py
+python_kemptech_api/lxml_to_dict.py
 python_kemptech_api/models.py
 python_kemptech_api/objects.py
 python_kemptech_api/utils.py
@@ -24,6 +25,7 @@ python_kemptech_api.egg-info/requires.txt
 python_kemptech_api.egg-info/top_level.txt
 tests/__init__.py
 tests/integration/__init__.py
+tests/integration/test_compat.py
 tests/integration/test_xml_to_json.py
 tests/integration/fixtures/__init__.py
 tests/unit/__init__.py

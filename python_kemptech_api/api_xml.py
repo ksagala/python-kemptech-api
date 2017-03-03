@@ -1,7 +1,7 @@
 """Encapsulate the awful XML response and provide helpful functions."""
+from lxml import etree
 
-import xmltodict
-from pylru import lrudecorator
+from python_kemptech_api import lxml_to_dict
 
 
 def get_success_msg(xml):
@@ -23,7 +23,6 @@ def get_data_field(xml, field):
     return value or ""
 
 
-@lrudecorator(64)
 def get_data(xml):
     """Return the 'Data' entry from LM's XML as a dict"""
     success_xml_entry = _get_xml_field(xml, "Success")
@@ -38,15 +37,20 @@ def get_data(xml):
 def parse_to_dict(xml):
     """Return the XML as an OrderedDict."""
     try:
-        return xmltodict.parse(xml)
-    except xmltodict.expat.ExpatError:
+        return lxml_to_dict.parse(xml)
+    # To retain compatibility with the ExpatError
+    # that xmltodict occasionally raised from LM responses
+    except etree.XMLSyntaxError:
         pass
 
 
 def _get_xml_field(xml, field, data_field=None):
     """return the string specified, or None if not present"""
     try:
-        xml_dict = xmltodict.parse(xml)
+        if isinstance(xml, dict):
+            xml_dict = xml
+        else:
+            xml_dict = lxml_to_dict.parse(xml)
         try:
             response_dict = xml_dict["Response"]
             if data_field is None:
@@ -57,5 +61,7 @@ def _get_xml_field(xml, field, data_field=None):
             return msg
         except KeyError:
             return {}
-    except xmltodict.expat.ExpatError:
+    # To retain compatibility with the ExpatError
+    # that xmltodict occasionally raised from LM responses
+    except etree.XMLSyntaxError:
         return {}

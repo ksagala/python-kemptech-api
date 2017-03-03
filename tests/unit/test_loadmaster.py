@@ -37,7 +37,8 @@ def test_send_response_ok():
 
 
 def test_send_response_fail():
-    with patch.object(utils, 'is_successful') as is_successful:
+    with patch.object(utils, 'is_successful') as is_successful, \
+            patch.object(utils, 'parse_to_dict'):
         is_successful.return_value = False
         with patch.object(utils, 'get_error_msg') as get_error_msg:
             get_error_msg.return_value = None

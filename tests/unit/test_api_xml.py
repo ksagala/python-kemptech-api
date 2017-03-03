@@ -1,7 +1,5 @@
-import os
-import pylru
-
 from nose.tools import assert_equal, assert_is_none
+from lxml.etree import XMLSyntaxError
 
 # handle py3 and py2 cases:
 try:
@@ -9,13 +7,11 @@ try:
 except ImportError:
     import mock
 
+import python_kemptech_api.api_xml as api_xml
+from python_kemptech_api import lxml_to_dict
+
 patch = mock.patch
 sentinel = mock.sentinel
-
-import xmltodict
-
-import python_kemptech_api.api_xml as api_xml
-from bin.conf import XML_DATA_DIR
 
 
 def test_is_successful_str():
@@ -33,14 +29,14 @@ def test_is_successful_None():
 
 
 def test_get_xml_field_no_data_field():
-    with patch.object(api_xml,'xmltodict') as xmltodict:
+    with patch.object(api_xml,'lxml_to_dict') as xmltodict:
         xmltodict.parse.return_value = {'Response':{'myfield': 'myfield-value'}}
         res = api_xml._get_xml_field('any_xml', 'myfield')
         assert_equal(res, 'myfield-value')
 
 
 def test_get_xml_field_with_data_field():
-    with patch.object(api_xml,'xmltodict') as xmltodict:
+    with patch.object(api_xml,'lxml_to_dict') as xmltodict:
         xmltodict.parse.return_value = {
         'Response':{'Success': {'myfield': {
              'mydata': 'mydata-value'}}}}
@@ -48,7 +44,7 @@ def test_get_xml_field_with_data_field():
         assert_equal(res, 'mydata-value')
 
 def test_get_xml_field_with_KeyError():
-    with patch.object(api_xml,'xmltodict') as xmltodict:
+    with patch.object(api_xml,'lxml_to_dict') as xmltodict:
         xmltodict.parse.return_value = {}
         res = api_xml._get_xml_field('any_xml', 'myfield')
         assert_equal(res, {})
@@ -67,8 +63,9 @@ def test_get_data_ok():
 #        assert_equal(res, {})
 
 def test_get_xml_field_ExpatError_returns_empty_dict():
-    with patch.object(xmltodict, "parse") as parse:
-        parse.side_effect = xmltodict.expat.ExpatError
+    with patch.object(lxml_to_dict, "parse") as parse:
+        # Inject dummy values into XMLSyntaxError constructor
+        parse.side_effect = XMLSyntaxError(*list(range(5)))
         actual = api_xml._get_xml_field('any_xml', 'myfield')
         assert_equal(actual, {})
 

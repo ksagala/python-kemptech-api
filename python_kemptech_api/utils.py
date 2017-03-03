@@ -96,10 +96,11 @@ def get_sub_vs_list_from_data(response_data):
 
 
 def send_response(response):
-    if is_successful(response):
-        return parse_to_dict(response)
+    parsed_resp = parse_to_dict(response)
+    if is_successful(parsed_resp):
+        return parsed_resp
     else:
-        raise KempTechApiException(get_error_msg(response))
+        raise KempTechApiException(get_error_msg(parsed_resp))
 
 
 def get_api_bool_string(api_bool):

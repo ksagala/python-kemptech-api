@@ -2120,3 +2120,61 @@ class Interface(BaseKempObject):
 
         if not is_successful(response):
             raise KempTechApiException(get_error_msg(response))
+
+
+class License(BaseKempObject):
+    _API_DEFAULT_ATTRIBUTES = {
+        "uuid": "uuid",
+        "activationdate": "activationdate",
+        "licenseduntil": "licenseduntil",
+        "supportuntil": "supportuntil",
+        "supportlevel": "supportlevel",
+        "licensetype": "licensetype",
+        "licensestatus": "licensestatus",
+        "appliancemodel": "appliancemodel",
+    }
+
+    def __init__(self, loadmaster_info, params=None):
+        """ License constructor
+
+        :param loadmaster_info: LoadMaster access_info
+        """
+        self.subscriptions = []
+        self.populate_default_attributes(params)
+        super(License, self).__init__(loadmaster_info)
+
+    def populate_default_attributes(self, params):
+        params = {} if params is None else params
+        super(License, self).populate_default_attributes(params)
+
+    def save(self, update=False):
+        pass
+
+    def __str__(self):
+        return 'License type: {}'.format(self.licensetype)
+
+
+class Subscription(BaseKempObject):
+    _API_DEFAULT_ATTRIBUTES = {
+        "name": "Name",
+        "expires": "Expires",
+        "featurelist": "FeatureList",
+    }
+
+    def __init__(self, loadmaster_info, params=None):
+        """Subscription constructor
+
+        :param loadmaster_info: LoadMaster access_info
+        """
+        self.populate_default_attributes(params)
+        super(Subscription, self).__init__(loadmaster_info)
+
+    def populate_default_attributes(self, params):
+        params = {} if params is None else params
+        super(Subscription, self).populate_default_attributes(params)
+
+    def save(self, update=False):
+        pass
+
+    def __str__(self):
+        return 'Subscription type: {}'.format(self.name)

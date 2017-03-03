@@ -14,6 +14,11 @@ from python_kemptech_api.api_xml  import parse_to_dict
 DATA_DIR = os.path.join(PROJECT_DIR, 'tests','integration','data')
 XML_DATA_DIR = os.path.join(DATA_DIR, 'xml')
 JSON_DATA_DIR = os.path.join(DATA_DIR, 'json')
+# For testing compatibility between xmltodict 
+# and the internal lxml_to_dict module
+# as these files may not need a JSON equivalent
+# e.g. multiple variations of a single API call
+XML_COMPAT_DIR = os.path.join(DATA_DIR, 'compat')
 
 
 def clear_dir(adir):
