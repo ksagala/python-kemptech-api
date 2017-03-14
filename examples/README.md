@@ -10,8 +10,9 @@ Future
 =====
 Additional ideas listed below are examples we are planning on producing.
 
-* Create LoadMaster object
-* Enable the API
+* ~~Create LoadMaster object~~
+* ~~Drain a Real Server~~
+* ~~Enable the API~~
 * Patching
 * Upload template
 * Clone VS
