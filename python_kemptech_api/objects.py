@@ -2132,6 +2132,7 @@ class License(BaseKempObject):
         "licensetype": "licensetype",
         "licensestatus": "licensestatus",
         "appliancemodel": "appliancemodel",
+        "freelicense": "freelicense",
     }
 
     def __init__(self, loadmaster_info, params=None):

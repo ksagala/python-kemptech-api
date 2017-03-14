@@ -15,6 +15,7 @@ LOADMASTER_CAPABILITIES.extend([
     "templates",
     "firmware",
     "virtual_services",
+    "device_config",
 ])
 
 CAPABILITIES = {
