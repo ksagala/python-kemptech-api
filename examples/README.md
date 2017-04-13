@@ -19,11 +19,11 @@ Additional ideas listed below are examples we are planning on producing.
 * Clone VS
 * Get logs
 * Backup
-* Create a VS
-* Add a RS
-* Modify a VS
+* ~~Create a VS~~
+* ~~Add a RS~~
+* ~~Modify a VS
 	* Healthcheck
-	* Transparency
+	* Transparency~~
 * Upload and enable a certificate and customize ciphers
 * Create user, add cert, login using cert
 * Stats
