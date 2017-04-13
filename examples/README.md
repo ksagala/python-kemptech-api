@@ -21,9 +21,9 @@ Additional ideas listed below are examples we are planning on producing.
 * Backup
 * ~~Create a VS~~
 * ~~Add a RS~~
-* ~~Modify a VS
-	* Healthcheck
-	* Transparency~~
+* ~~Modify a VS~~
+	* ~~Healthcheck~~
+	* ~~Transparency~~
 * Upload and enable a certificate and customize ciphers
 * Create user, add cert, login using cert
 * Stats
