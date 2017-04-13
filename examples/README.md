@@ -14,7 +14,8 @@ Additional ideas listed below are examples we are planning on producing.
 * ~~Drain a Real Server~~
 * ~~Enable the API~~
 * Patching
-* Upload template
+* ~~Upload template~~
+* ~~Export VS to template~~
 * Clone VS
 * Get logs
 * Backup
