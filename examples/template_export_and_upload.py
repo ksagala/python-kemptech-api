@@ -1,5 +1,3 @@
-import sys
-import time
 from python_kemptech_api import *
 
 # Specify the LoadMaster connection credentials here:
