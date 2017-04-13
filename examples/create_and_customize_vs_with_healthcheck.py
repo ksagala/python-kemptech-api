@@ -1,14 +1,15 @@
-import sys
-import time
 from python_kemptech_api import *
 
 # Specify the LoadMaster connection credentials here:
 loadmaster_ip = ""
 username = ""
 password = ""
-vs_ip = ""
 
 lm = LoadMaster(loadmaster_ip, username, password)
+
+# Create the Virtual Service
+vs_ip = ""
+vs_port = ""
 
 vs = lm.create_virtual_service(vs_ip, vs_port, "tcp")
 vs.save()
