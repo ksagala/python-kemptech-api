@@ -109,9 +109,10 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
         """Perform a get in the context of enabling the API."""
         url = "https://{}:{}/{}".format(self.ip_address, self.port, cmd)
         if self.cert:
-            resp = self._tls_session.get(url, verify=False, timeout=1, cert=self.cert)
+            resp = self._tls_session.get(url, verify=False, timeout=utils.TIMEOUT,
+                                         cert=self.cert)
         else:
-            resp = self._tls_session.get(url, verify=False, timeout=1,
+            resp = self._tls_session.get(url, verify=False, timeout=utils.TIMEOUT,
                                          auth=(self.username, self.password))
             self._tls_session.close()
         return resp.status_code
@@ -1553,7 +1554,7 @@ class LoadMaster(BaseKempAppliance):
             'vs': virtual_ip,
             'port': port,
             'prot': protocol,
-            'name': template_name,
+            'template': template_name,
         }
 
         existing = self.vs.keys()

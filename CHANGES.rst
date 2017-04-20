@@ -1,6 +1,7 @@
-v0.7.26, 010-03-2017
-    * added freelicense field to license
-    * added new capability, device_config for loadmasters
+v0.7.27, 13-04-2017
+    * Debug request logging no longer logs URL-embedded credentials or querystring parameters
+    * Debug logging is not automatically configured by default
+    * Enable API timeout is now consistent with other API request timeouts
 v0.7.25, 03-03-2017
     * replaced xmltodict with an lxml-based XML to dict parser for higher performance
     * get_all_objects now optionally returns the last-changed timestamp from listvs

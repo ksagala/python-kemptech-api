@@ -19,7 +19,6 @@ from .utils import UseTlsAdapter, send_response
 
 requests.packages.urllib3.disable_warnings()
 log = logging.getLogger(__name__)
-log.setLevel(logging.DEBUG)
 logging.basicConfig()
 
 
@@ -59,8 +58,11 @@ class HttpClient(object):
         cmd_url = "{endpoint}{cmd}?".format(endpoint=self.endpoint,
                                             cmd=rest_command)
 
-        log.debug(cmd_url)
-        log.debug(repr(parameters))
+        # Only log ip:port/path, any other information is potentially sensitive
+        log_url = 'host={}, path={}'.format(
+            self.ip_address,
+            rest_command)
+        log.debug(log_url)
 
         try:
             if file is not None:
