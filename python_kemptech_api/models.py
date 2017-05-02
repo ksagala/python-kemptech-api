@@ -67,7 +67,9 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
         self.version = None
 
         super(BaseKempAppliance, self).__init__(utils.DEFAULT_TLS_VERSION,
-                                                self.cert)
+                                                self.cert,
+                                                user=self.username,
+                                                password=self.password)
 
     def __repr__(self):
         return '{}:{}'.format(self.ip_address, self.port)
@@ -119,20 +121,7 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
 
     @property
     def endpoint(self):
-        if self.cert:
-            return "https://{ip}:{port}/{access}".format(
-                ip=self.ip_address,
-                port=self.port,
-                access=self.access_point
-            )
-        else:
-            return "https://{user}:{pw}@{ip}:{port}/{access}".format(
-                user=self.username,
-                pw=self.password,
-                ip=self.ip_address,
-                port=self.port,
-                access=self.access_point
-            )
+        return "https://{}:{}/{}".format(self.ip_address, self.port, self.access_point)
 
     @property
     def capabilities(self):
@@ -150,6 +139,8 @@ class BaseKempAppliance(HttpClient, AccessInfoMixin):
         command = '{}/{}'.format(self.endpoint, command)
         if self.cert:
             curl.extend(['-E', self.cert])
+        else:
+            curl.extend(['-u', '{}:{}'.format(self.username, self.password)])
         curl.append(command)
         return curl
 

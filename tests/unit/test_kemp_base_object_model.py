@@ -9,8 +9,9 @@ class Test_KempBaseObjectModel:
 
     def test_to_api_dict(self):
         loadmaster_access = {
-            "endpoint": "https://bal:1fourall@1.1.1.1:443/access",
+            "endpoint": "https://1.1.1.1:443/access",
             "ip_address": "1.1.1.1",
+            "auth": ("bal", "2fourall"),
         }
 
         kbo = python_kemptech_api.generic.BaseKempObject(loadmaster_access)
@@ -26,8 +27,9 @@ class Test_KempBaseObjectModel:
             pass
 
         loadmaster_access = {
-            "endpoint": "https://bal:1fourall@1.1.1.1:443/access",
+            "endpoint": "https://1.1.1.1:443/access",
             "ip_address": "1.1.1.1",
+            "auth": ("bal", "2fourall"),
         }
 
         my = MySubclass(loadmaster_access)
@@ -36,6 +38,6 @@ class Test_KempBaseObjectModel:
         assert_equal("MySubclass ", str(my)[:11])
 
         data = json.loads(str(my)[11:])
-        assert_equal(data['endpoint'], 'https://bal:1fourall@1.1.1.1:443/access')
+        assert_equal(data['endpoint'], 'https://1.1.1.1:443/access')
         assert_equal(data['stuff'], 'x')
         assert_equal(data['ip_address'], '1.1.1.1')
