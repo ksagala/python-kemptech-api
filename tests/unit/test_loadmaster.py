@@ -24,7 +24,7 @@ import python_kemptech_api.exceptions as exceptions
 
 def test_endpoint():
     lm = LoadMaster('ip', 'user', 'pw', 'port')
-    expected = "https://user:pw@ip:port/access"
+    expected = "https://ip:port/access"
     assert_equal(expected, lm.endpoint)
 
 

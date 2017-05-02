@@ -28,8 +28,10 @@ class HttpClient(object):
     ip_address = None
     endpoint = None
 
-    def __init__(self, tls_version=utils.DEFAULT_TLS_VERSION, cert=None):
+    def __init__(self, tls_version=utils.DEFAULT_TLS_VERSION, cert=None,
+                 user=None, password=None):
         self.cert = cert
+        self.auth = (user, password)
         self._tls_version = tls_version
         self._tls_session = Session()
         self._tls_session.mount("http://", UseTlsAdapter(self._tls_version))
@@ -42,6 +44,12 @@ class HttpClient(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._tls_session.close()
         return False
+
+    def _get_basic_auth(self):
+        if self.cert:
+            return None
+        else:
+            return self.auth
 
     def _do_request(self, http_method, rest_command,
                     parameters=None, file=None, data=None,
@@ -58,11 +66,11 @@ class HttpClient(object):
         cmd_url = "{endpoint}{cmd}?".format(endpoint=self.endpoint,
                                             cmd=rest_command)
 
-        # Only log ip:port/path, any other information is potentially sensitive
-        log_url = 'host={}, path={}'.format(
-            self.ip_address,
-            rest_command)
-        log.debug(log_url)
+        log.debug(cmd_url)
+
+        # If a certificate has been specified,
+        # use that instead of the potentially (None, None) auth tuple
+        auth = self._get_basic_auth()
 
         try:
             if file is not None:
@@ -72,7 +80,8 @@ class HttpClient(object):
                                                          verify=False,
                                                          data=payload,
                                                          headers=headers,
-                                                         cert=self.cert)
+                                                         cert=self.cert,
+                                                         auth=auth)
             else:
                 response = self._tls_session.request(http_method,
                                                      cmd_url,
@@ -81,7 +90,8 @@ class HttpClient(object):
                                                      timeout=utils.TIMEOUT,
                                                      verify=False,
                                                      headers=headers,
-                                                     cert=self.cert)
+                                                     cert=self.cert,
+                                                     auth=auth)
             self._tls_session.close()
 
             # Raise specific error for authentication failure
@@ -146,6 +156,7 @@ class AccessInfoMixin(object):
     endpoint = None
     ip_address = None
     cert = None
+    auth = None
 
     @property
     def access_info(self):
@@ -153,6 +164,7 @@ class AccessInfoMixin(object):
             "endpoint": self.endpoint,
             "ip_address": self.ip_address,
             "cert": self.cert,
+            "auth": self.auth,
             "appliance": self
         }
         return info
@@ -173,7 +185,7 @@ class BaseKempObject(HttpClient, AccessInfoMixin):
     _API_IGNORE = (
         "log_urls", "ip_address", "endpoint", "rsindex", "vsindex", "index",
         "status", "subvs_data", "subvs_entries", "real_servers", "cert",
-        "checkuse1_1", "mastervsid", "API_INIT_PARAMS", "API_TAG"
+        "checkuse1_1", "mastervsid", "API_INIT_PARAMS", "API_TAG", "auth"
     )
 
     def __init__(self, loadmaster_info, **kwargs):
@@ -187,7 +199,13 @@ class BaseKempObject(HttpClient, AccessInfoMixin):
         except KeyError:
             raise GenericObjectMissingLoadMasterInfo(type(self), "ip_address")
 
-        super(BaseKempObject, self).__init__(loadmaster_info)
+        try:
+            self.auth = loadmaster_info["auth"]
+        except KeyError:
+            raise GenericObjectMissingLoadMasterInfo(type(self), "auth")
+        cert = loadmaster_info.get("cert")
+        super(BaseKempObject, self).__init__(cert=cert,
+                                             user=self.auth[0], password=self.auth[1])
 
     def __repr__(self):
         return '{} {}'.format(

@@ -1,3 +1,6 @@
+v0.7.28, 24-04-2017
+    * Credentials are now passed through the HTTP Authorization header instead of embedded in the URL.
+    * If Basic Auth credentials and a client certificate are specified, the client certificate will be used to authenticate.
 v0.7.27, 13-04-2017
     * Debug request logging no longer logs URL-embedded credentials or querystring parameters
     * Debug logging is not automatically configured by default
