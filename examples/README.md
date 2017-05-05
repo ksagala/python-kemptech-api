@@ -36,3 +36,4 @@ Additional ideas listed below are examples we are planning on producing.
 * GEO BL Rule download
 * Reboot
 * A/B Testing prototype
+* ~~Deploy new server from CI~~ [deploy_server](deploy_server/README.md)
